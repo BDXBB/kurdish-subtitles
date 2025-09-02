@@ -1,9 +1,26 @@
+// Default
+
+let isTranslationEnabled = true;
+let Tolanguagevalue = 'ckb';
+let Fromlanguagevalue = 'auto'
+let subtitleIntervalId = null;
+
 // The injectScript Working Like Bridge Btween The Site and This Code To Get Data Like window._bs
 function injectScript() {
   const script = document.createElement('script');
   script.src = chrome.runtime.getURL('injector.js');
   (document.head || document.documentElement).appendChild(script);
   script.remove();
+}
+
+function StopACleanup() {
+  if (subtitleIntervalId) {
+    clearInterval(subtitleIntervalId);
+    subtitleIntervalId = null;
+  }
+  const oldBox = document.getElementById("ckb-subtitle");
+  if (oldBox) oldBox.remove();
+  console.log("Stoped & clean up");
 }
 
 // Listeneing to the messsges
@@ -19,8 +36,20 @@ window.addEventListener('message', (event) => {
   }
 }, false);
 
-// Calling injectScript function
-injectScript();
+// TOGGLE ON & OFF & Calling injectScript function
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'TOGGLE_IS') {
+    isTranslationEnabled = message.enabled;
+    if (isTranslationEnabled) {
+      injectScript();  //  Calling injectScript 
+    } else {
+      StopACleanup();
+    }
+  } else if (message.type === 'LANGUAGE_IS') {
+    Tolanguagevalue = message.language;
+    console.log(`Language Changed to: ${Tolanguagevalue}`);
+  }
+});
 
 let intervalId = null;  // To Stop old setInterval
 
@@ -264,7 +293,11 @@ if (oldBox) oldBox.remove();
       subtitleBox.style.zIndex = "9999"; // to be always top
       subtitleBox.style.maxWidth = "90%";
       subtitleBox.style.textAlign = "center";
-      subtitleBox.style.direction = "rtl";        // kurdish so it has to be rtl
+      if (Tolanguagevalue == 'ku' || Tolanguagevalue == 'fr' || Tolanguagevalue == 'ar') {
+      subtitleBox.style.direction = "rtl";        // Kurdish & Arabic & Farsi has to be rtl
+      } else {
+      subtitleBox.style.direction = "ltr";        // Russian & Turkish so it has to be ltr
+      }
       subtitleBox.style.unicodeBidi = "embed";
       subtitleBox.style.pointerEvents = "none";
       const container = document.querySelector(".FMPlayer2-VideoContainer") || document.body; // FrontEnd Master only
@@ -292,7 +325,8 @@ intervalId = setInterval(() => {
   const current = subtitles.find(s => currentTime >= s.start && currentTime <= s.end);
   if (current && current.text !== lastText) {
     lastText = current.text;
-    FAGtranslate(current.text);
+    FAGtranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
+    console.log(Tolanguagevalue)
   }
 }, 500); // 500 seconds
 }
