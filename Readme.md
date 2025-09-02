@@ -50,11 +50,11 @@
 We have many ideas to improve this extension Here are some of the main goals:
 
 *   **Multi-Language Support:** Adding translation support for more languages including:
-    *   Kurdish (Kurmanji)
-    *   Arabic
-    *   Persian (Farsi)
-    *   Russian
-    *   Turkish
+    *   Kurdish (Kurmanji) ✅
+    *   Arabic ✅
+    *   Persian (Farsi) ✅
+    *   Russian ✅
+    *   Turkish ✅
 *   **Official Store Publication:** Publishing the extension to the `Chrome Web Store If i had $$$` and Firefox Add-ons store for easy one click installation Soon
 
 ---
