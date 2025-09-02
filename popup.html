@@ -2,10 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kurdish Subtitles</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      width: 250px;
+      padding: 10px;
+      background-color: #2d2d2d;
+      color: #f0f0f0;
+    }
+    .Contener-setting {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 14px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .switch input { display: none; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px; width: 16px;
+      left: 4px; bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    select {
+      padding: 5px;
+      border-radius: 4px;
+      background-color: #555;
+      color: #fff;
+      border: 1px solid #777;
+    }
+
+    input:checked + .slider { background-color: #4caf50; }
+    input:checked + .slider:before { transform: translateX(26px); }
+  </style>
 </head>
 <body>
-      <h3>Shoud Work</h3>  
+  <h4>Subtitle Settings</h4>
+  <div class="Contener-setting">
+    <label for="toggles-tr">Enable Translation</label>
+    <label class="switch">
+      <input type="checkbox" id="toggles-tr">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="Contener-setting">
+    <label for="language-select">Language</label>
+    <select id="language-select">
+      <!-- <option value="language code ">language</option> -->
+      <option value="ckb">Kurdish (Sorani)</option>
+      <option value="ckb">Kurdish (Kurmanji)</option>
+      <option value="ar">Arabic</option>
+      <option value="fa">Farsi</option>
+      <option value="tu">Turkish</option>
+      <option value="ru">Russian</option>
+    </select>
+  </div>
+  <!-- Control & Data -->
+  <script src="popup.js"></script>
 </body>
 </html>
