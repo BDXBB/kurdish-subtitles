@@ -1,4 +1,4 @@
-// We Need Somthing Make Our Extension Working When We page load"Reload The Pages
+// We Need Something Make Our Extension Working When We Load & Reload The Pages
 
 function MsgToContent(message) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
