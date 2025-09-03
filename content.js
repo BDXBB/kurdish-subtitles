@@ -3,7 +3,7 @@
 let isTranslationEnabled = true;
 let Tolanguagevalue = 'ckb';
 let Fromlanguagevalue = 'auto'
-let subtitleIntervalId = null;
+let subtitleIntervalId = null;  // To Stop old setInterval
 
 // The injectScript Working Like Bridge Btween The Site and This Code To Get Data Like window._bs
 function injectScript() {
@@ -51,15 +51,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-let intervalId = null;  // To Stop old setInterval
 
 // main
 async function main(courseSlug, pathname) {
 
 // Clearing Out SetInterval 
-if (intervalId !== null) {
-  clearInterval(intervalId);
-  intervalId = null;
+if (subtitleIntervalId !== null) {
+  clearInterval(subtitleIntervalId);
+  subtitleIntervalId = null;
 }
 
 // Removing old Subtitle
@@ -320,7 +319,7 @@ if (oldBox) oldBox.remove();
   subtitles = await GetpsVTT(VTT_URL);
 
 // Recalling setInterval every 500 seconds
-intervalId = setInterval(() => {
+subtitleIntervalId = setInterval(() => {
   const currentTime = video.currentTime;
   const current = subtitles.find(s => currentTime >= s.start && currentTime <= s.end);
   if (current && current.text !== lastText) {

@@ -1,7 +1,7 @@
 # Kurdish Subtitles
 
 
-[![Watch the demo](./Preview/image.png)](https://drive.google.com/file/d/18KkywVPXi-hvvUKQbUAzX6XFDggV_S5a/view)
+[![Watch the demo](./Preview/image.png)](https://drive.google.com/file/d/1j65tz-Zqc0iprplH7D7nwJkDfDY4644q/view)
 
 > **A browser extension translates video subtitles from other languges into Kurdish**
 
