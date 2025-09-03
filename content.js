@@ -240,6 +240,8 @@ if (oldBox) oldBox.remove();
 
 /// *** Funcion To Use *** ///
 
+// Adding Support For API's ... Soon & I Think i have use OOP ? Maybeeeee...
+
 //  async function MYAPI(text, targetLang = 'ckb', sourceLang = 'auto') {
 //   try {
 //     const res = await fetch(`https://silverbase.site/api/trans.php?from=${sourceLang}&to=${targetLang}&text=${encodeURIComponent(text)}`);
