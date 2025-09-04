@@ -8,7 +8,7 @@ let subtitleIntervalId = null;  // To Stop old setInterval
 // The injectScript Working Like Bridge Btween The Site and This Code To Get Data Like window._bs
 function injectScript() {
   const script = document.createElement('script');
-  script.src = chrome.runtime.getURL('injector.js');
+  script.src = chrome.runtime.getURL('src/injector.js');
   (document.head || document.documentElement).appendChild(script);
   script.remove();
 }
