@@ -48,7 +48,7 @@
 
 ## Optional: Use Your Own Google API Key 🔑
 
-Sometimes because of high usage maybe your IP might get temporarily blocked from using Google's translation service
+Sometimes because of high usage maybe your IP might get temporarily blocked or banned from using Google's translation service
 
 So To avoid this you can just use your own Google Translate API key **From google cloud console**
 
@@ -73,6 +73,7 @@ We have many ideas to improve this extension Here are some of the main goals:
     *   Persian (Farsi) ✅
     *   Russian ✅
     *   Turkish ✅
+*   **Multi-Language Popup menu:** Soon 
 *   **Official Store Publication:** Publishing the extension to the `Chrome Web Store If i had $$$` and Firefox Add-ons store for easy one click installation Soon
 
 ---

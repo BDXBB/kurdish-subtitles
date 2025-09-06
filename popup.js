@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (key) {
       chrome.storage.sync.set({ PAG_API_KEY: key });
       statusSpan.textContent = 'Key saved ✅';
-      MsgToContent({ type: 'PAG_API_KEY', Enabled: true, PAG_API_KEY: key});
+      MsgToContent({ type: 'PAG_API_KEY', enabled: true, PAG_API_KEY: key});
     } else {
       statusSpan.textContent = 'Please Enter a Valid Key';
     }
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   deleteButton.addEventListener('click', () => {
   chrome.storage.sync.remove("PAG_API_KEY", () => {
     apiKeyInput.value = '';
-    MsgToContent({ type: 'PAG_API_KEY', Enabled: false });
+    MsgToContent({ type: 'PAG_API_KEY', enabled: false });
     statusSpan.textContent = 'Key deleted ❌';
 });
   });
