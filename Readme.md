@@ -46,6 +46,24 @@
 
 ---
 
+## Optional: Use Your Own Google API Key 🔑
+
+Sometimes because of high usage maybe your IP might get temporarily blocked from using Google's translation service
+
+So To avoid this you can just use your own Google Translate API key **From google cloud console**
+
+### How to Add Your API Key
+
+1. Open the extension popup
+2. Click on the **Settings** section
+3. Enter your API key in the **Google API Key** input field
+4. Click **Save** to store the key & You can delete it anytime using the **Delete** button
+
+> **Note ⚠️:** This is optional The extension works without it unless your IP is rate-limited by Google
+
+
+---
+
 ## Roadmap 🗺️ (Future Plans)
 We have many ideas to improve this extension Here are some of the main goals:
 
