@@ -4,6 +4,8 @@ let isTranslationEnabled = true;
 let Tolanguagevalue = 'ckb';
 let Fromlanguagevalue = 'auto'
 let subtitleIntervalId = null;  // To Stop old setInterval
+// Get The API_KEY it From GOOGLE Cloud Console > APIs & Services > Credentials > & Enable Google Translation Api 
+let PAG_API_KEY = null // PAG like Paid Api from Google > idk just a name I liked
 
 // The injectScript Working Like Bridge Btween The Site and This Code To Get Data Like window._bs
 function injectScript() {
@@ -30,7 +32,12 @@ window.addEventListener('message', (event) => {
   }
   const { courseSlug, pathname } = event.data.payload;
   if (courseSlug && pathname) {
-    main(courseSlug, pathname); // Calling main function
+        chrome.storage.sync.get(['translationEnabled'], (result) => {
+      const isEnabled = result.translationEnabled === true;
+      if (isEnabled) {
+          main(courseSlug, pathname); // Calling main function
+      } // Translation is disabled
+    });
   } else {
     console.error('Unable to get course data from this page');
   }
@@ -41,13 +48,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TOGGLE_IS') {
     isTranslationEnabled = message.enabled;
     if (isTranslationEnabled) {
-      injectScript();  //  Calling injectScript 
+        chrome.storage.sync.get("PAG_API_KEY", (result) => {
+          if (result.PAG_API_KEY) {
+            PAG_API_KEY =  result.PAG_API_KEY;
+          }
+        });
+      injectScript();  //  Calling injectScript
     } else {
       StopACleanup();
     }
   } else if (message.type === 'LANGUAGE_IS') {
     Tolanguagevalue = message.language;
     console.log(`Language Changed to: ${Tolanguagevalue}`);
+  } else if (message.type === 'PAG_API_KEY') {
+    if (message.enabled){
+      PAG_API_KEY =  message.PAG_API_KEY;
+    } else {
+      PAG_API_KEY = null;
+    }
   }
 });
 
@@ -155,28 +173,28 @@ if (oldBox) oldBox.remove();
 
   // Not Tested But Shoud Work It use Google Translation Api NEED GOOGLE Cloud Console Sine i am in Iraq i Can't Use it WOW Whyy??? 
   // const API_KEY = "" 
-  // async function PAGItranslate(text, targetLang = 'ckb', sourceLang = 'auto') {
-  //   try {
-  //     const res = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`, {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         q: text,
-  //         source: sourceLang,
-  //         target: targetLang,
-  //         format: "text"
-  //       }),
-  //       headers: {
-  //         "Content-Type": "application/json"
-  //       }
-  //     });
+  async function PAGItranslate(text, targetLang = 'ckb', sourceLang = 'auto') {
+    try {
+      const res = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${PAG_API_KEY}`, {
+        method: "POST",
+        body: JSON.stringify({
+          q: text,
+          source: sourceLang,
+          target: targetLang,
+          format: "text"
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
 
-  //     const data = await res.json();
-  //     const translated = data.data.translations[0].translatedText;
-  //     showSubtitle(translated);
-  //   } catch (error) {
-  //     console.error("Translation error:", error);
-  //   }
-  // }
+      const data = await res.json();
+      const translated = data.data.translations[0].translatedText;
+      showSubtitle(translated);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+  }
 
  // So I extracted Used API from a program APK in Android Using Nox emulator and BurbSuite And Create PHP Code To Use It On My WEB SERVER
  // & YA It Worked Until The SERVER was banned by Google
@@ -320,16 +338,19 @@ if (oldBox) oldBox.remove();
   }
   subtitles = await GetpsVTT(VTT_URL);
 
-// Recalling setInterval every 500 seconds
+// Recalling setInterval every 500 milliseconds
 subtitleIntervalId = setInterval(() => {
   const currentTime = video.currentTime;
   const current = subtitles.find(s => currentTime >= s.start && currentTime <= s.end);
   if (current && current.text !== lastText) {
     lastText = current.text;
-    FAGtranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
-    console.log(Tolanguagevalue)
+    if (PAG_API_KEY) {
+      PAGItranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
+    } else {
+      FAGtranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
+    }
   }
-}, 500); // 500 seconds
+}, 500); // 500 milliseconds
 }
 
 let currentPath = window.location.pathname;

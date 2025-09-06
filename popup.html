@@ -54,6 +54,73 @@
 
     input:checked + .slider { background-color: #4caf50; }
     input:checked + .slider:before { transform: translateX(26px); }
+
+     /* Accordion */
+    .accordion-header {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      margin-top: 15px;
+      user-select: none;
+    }
+
+    .accordion-arrow {
+      margin-right: 6px;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .accordion.open .accordion-arrow {
+      transform: rotate(90deg);
+    }
+
+    .accordion-content {
+      display: none;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .accordion.open .accordion-content {
+      display: block;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 0 2px;
+      border: none; 
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    #save-api-key {
+      background-color: #4caf50;
+    }
+    #delete-api-key {
+      background-color: #e74c3c;
+    }
+    #save-api-key:hover {
+      background-color: #5cb85c;
+    }
+    #delete-api-key:hover {
+      background-color: #db5357;
+    }
+    .Contener-setting {
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 16px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      border-radius: 4px;
+      background-color: #555;
+      color: #fff;
+      border: 1px solid #777;
+      min-width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -77,6 +144,24 @@
       <option value="ru">Russian</option>
     </select>
   </div>
+
+  <!-- Accordion Section -->
+  <div class="accordion" id="settings">
+    <div class="accordion-header" id="settings-header">
+      <span class="accordion-arrow">›</span>Settings
+    </div>
+    <div class="accordion-content">
+      <label for="api-key-input">Google API Key (Optional)</label>
+      <p >In Case Your IP Got Banned You Can Use Your Own Api Key For Google translation</p>
+      <input type="text" id="api-key-input" placeholder="Enter your key here" autocomplete="off">
+      <div class="Contener-setting" style="margin-top: 10px; justify-content: flex-end;">
+        <span class="api-status" id="api-key-status"></span>
+        <button id="delete-api-key">Delete</button>
+        <button id="save-api-key">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Connect popup html with content.js Feature Control -->
   <script src="popup.js"></script>
 </body>
