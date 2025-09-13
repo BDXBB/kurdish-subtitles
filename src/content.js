@@ -11,10 +11,8 @@ let settings = {
 let subtitleIntervalId = null;  // To Stop old setInterval
 let subtitles = null;
 
-/// ///
 
   // Not Tested But Shoud Work It use Google Translation Api NEED GOOGLE Cloud Console Sine i am in Iraq i Can't Use it WOW Whyy??? 
-  // const API_KEY = "" 
   async function PAGItranslate(text, targetLang = 'ckb', sourceLang = 'auto') {
     try {
       const res = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${PAG_API_KEY}`, {
@@ -100,7 +98,7 @@ let subtitles = null;
 
 /// *** Funcion To Use *** ///
 
-// Adding Support For API's ... Soon & I Think i have use OOP ? Maybeeeee...
+// Adding Support For API's ... Soon & I Think i have use OOP ? Maybeeeee... Nahh idk
 
 //  async function MYAPI(text, targetLang = 'ckb', sourceLang = 'auto') {
 //   try {
@@ -119,7 +117,6 @@ let subtitles = null;
 //     console.error('Network or translation error:', e);
 //   }
 // }
-
 
 
   async function FAGtranslate(text, targetLang = 'ckb', sourceLang = 'auto') {
@@ -172,7 +169,6 @@ let subtitles = null;
   }
 /// ///
 
-
   async function GetpsVTT(url) {
     const res = await fetch(url);
     const text = await res.text();
@@ -206,7 +202,6 @@ let subtitles = null;
 
   /// /// 
 
-
  async function translateAndShow(text) {
   if (settings.PAG_API_KEY) {
     await PAGItranslate(text, settings.Tolanguagevalue, settings.Fromlanguagevalue);
@@ -227,23 +222,6 @@ function StopACleanup() {
   console.log("Stoped & clean up");
 }
 
-// Listeneing to the messsges
-// window.addEventListener('message', (event) => {
-//   if (event.source !== window || event.data.type !== 'FROM_PAGE_SCRIPT') {
-//     return;
-//   }
-//   const { courseSlug, pathname } = event.data.payload;
-//   if (courseSlug && pathname) {
-//         chrome.storage.sync.get(['translationEnabled'], (result) => {
-//       const isEnabled = result.translationEnabled === true;
-//       if (isEnabled) {
-//           main(courseSlug, pathname); // Calling main function
-//       } // Translation is disabled
-//     });
-//   } else {
-//     console.error('Unable to get course data from this page');
-//   }
-// }, false);
 
 // TOGGLE ON & OFF & Calling injectScript function
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -255,7 +233,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             PAG_API_KEY =  result.PAG_API_KEY;
           }
         });
-      Run(); // injectScript();  //  Calling injectScript
+      Run();
     } else {
       StopACleanup();
     }
@@ -335,24 +313,6 @@ function injectScriptForFM() {
 }
 
 async function getFrontendMastersSubtitles() {
-//     return new Promise(resolve => {
-//         // For once
-//         const listener = (event) => {
-//             if (event.source === window && event.data.type === 'FROM_PAGE_SCRIPT') {
-//                 window.removeEventListener('message', listener);
-//                 const { courseSlug, pathname } = event.data.payload;
-//                 if (courseSlug && pathname) {
-//                     resolve(getDynamicVttUrl(courseSlug, pathname));
-//                 } else {
-//                     resolve(null);
-//                 }
-//             }
-//         };
-//         window.addEventListener('message', listener);
-//         injectScriptForFM();
-//     });
-// }
-
   return new Promise(resolve => {
     const listener = event => {
       if (event.source === window && event.data.type === 'FROM_PAGE_SCRIPT') {
@@ -364,7 +324,7 @@ async function getFrontendMastersSubtitles() {
       }
     };
     window.addEventListener('message', listener);
-    injectScriptForFM();
+    injectScriptForFM(); //  Calling injectScript
   });
 
 }
@@ -403,147 +363,17 @@ function Run() {
 }
 /// Call & Show ///
 
-// main
-// async function main(courseSlug, pathname) {
-
-// // Clearing Out SetInterval 
-// if (subtitleIntervalId !== null) {
-//   clearInterval(subtitleIntervalId);
-//   subtitleIntervalId = null;
-// }
-
-// // Removing old Subtitle
-// const oldBox = document.getElementById("ckb-subtitle");
-// if (oldBox) oldBox.remove();
-
-
-//   // Text and Subtitle Will Be in varibles
-//   let subtitles = [];
-//   let lastText = null;
-
-//   async function getDynamicVttUrl() {
-//   try {
-//     console.log("Trying to get VTT URL...");
-//     const pathParts = pathname.split('/').filter(p => p);
-//     const lessonSlug = pathParts[pathParts.length - 1];
-
-//     if (!courseSlug || !lessonSlug) {
-//       console.error("No courseSlug or lessonSlug found on this page");
-//       return null;
-//     }
-
-//     const courseApiUrl = `https://api.frontendmasters.com/v2/kabuki/courses/${courseSlug}`;
-//     const response = await fetch(courseApiUrl, { credentials: 'include' });
-
-//     if (!response.ok) {
-//       throw new Error(`Error geting Subtitles course: ${response.status} ${response.statusText}`);
-//     }
-
-//     const courseData = await response.json();
-
-//     const lessonData = courseData.lessonData;
-//     // console.log("lessonData:", lessonData);
-
-//     // Convert object to array
-//     const lessonList = Object.values(lessonData);
-//     const lesson = lessonList.find(l => l.slug === lessonSlug);
-
-//     if (!lesson) {
-//       console.error("The current lesson was not found in the course data");
-//       return null;
-//     }
-
-//     const lessonIndex = lesson.index;
-//     const datePublished = courseData.datePublished;
-
-//     if (datePublished === undefined || lessonIndex === undefined) {
-//       console.error("No datePublished or lessonIndex found in the API res");
-//       return null;
-//     }
-
-//     const captionsRoot = "https://captions.frontendmasters.com/assets/courses/";
-//     const captionsPath = `${datePublished}-${courseSlug}/${lessonIndex}-${lessonSlug}.vtt`;
-
-//     return captionsRoot + captionsPath;
-
-//   } catch (error) {
-//     console.error("Error to get VTT link:", error);
-//     return null;
-//   }
-// }
-
-
-
-//   function showSubtitle(text) {
-//     let subtitleBox = document.getElementById("ckb-subtitle");
-//     if (!subtitleBox) {
-//       subtitleBox = document.createElement("div");
-//       subtitleBox.id = "ckb-subtitle";
-//       subtitleBox.style.position = "absolute";
-//       subtitleBox.style.bottom = "10%";
-//       subtitleBox.style.left = "50%";
-//       subtitleBox.style.transform = "translateX(-50%)"; // Smoth Change Between Subtitles
-//       subtitleBox.style.background = "rgba(0,0,0,0.7)";
-//       subtitleBox.style.color = "#fff";
-//       subtitleBox.style.padding = "8px 16px";
-//       subtitleBox.style.fontSize = "18px";
-//       subtitleBox.style.borderRadius = "6px";
-//       subtitleBox.style.zIndex = "9999"; // to be always top
-//       subtitleBox.style.maxWidth = "90%";
-//       subtitleBox.style.textAlign = "center";
-//       if (Tolanguagevalue == 'ku' || Tolanguagevalue == 'fr' || Tolanguagevalue == 'ar') {
-//       subtitleBox.style.direction = "rtl";        // Kurdish & Arabic & Farsi has to be rtl
-//       } else {
-//       subtitleBox.style.direction = "ltr";        // Russian & Turkish so it has to be ltr
-//       }
-//       subtitleBox.style.unicodeBidi = "embed";
-//       subtitleBox.style.pointerEvents = "none";
-//       const container = document.querySelector(".FMPlayer2-VideoContainer") || document.body; // FrontEnd Master only
-//       container.style.position = "relative";
-//       container.appendChild(subtitleBox);
-//     }
-//     subtitleBox.innerText = text;
-//   }
-
-//   // Start and Control Subtitle based on video
-//   const video = document.querySelector("video"); // I Think it Will Work With all Web Sites ?
-//   if (!video) return;
-
-//   const VTT_URL = await getDynamicVttUrl();
-  
-//   if (!VTT_URL) {
-//     console.error("Failed to get VTT link");
-//     return;
-//   }
-//   subtitles = await GetpsVTT(VTT_URL);
-
-// // Recalling setInterval every 500 milliseconds
-// subtitleIntervalId = setInterval(() => {
-//   const currentTime = video.currentTime;
-//   const current = subtitles.find(s => currentTime >= s.start && currentTime <= s.end);
-//   if (current && current.text !== lastText) {
-//     lastText = current.text;
-//     if (PAG_API_KEY) {
-//       PAGItranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
-//     } else {
-//       FAGtranslate(current.text, Tolanguagevalue, Fromlanguagevalue);
-//     }
-//   }
-// }, 500); // 500 milliseconds
-// }
-
 
 async function main() {
   StopACleanup();
   if (!settings.translationEnabled) return;
 
   const hostname = window.location.hostname;
-  // console.log(hostname)
 
   //Switching by Domain name
   if (hostname.includes('frontendmasters.com')) {
     console.log("Frontend Masters");
-     injectScriptForFM();
+    injectScriptForFM(); //  Calling injectScript
     const vttUrl = await getFrontendMastersSubtitles();
     if (vttUrl) {
       subtitles = await GetpsVTT(vttUrl);
@@ -568,11 +398,7 @@ let currentPath = window.location.pathname;
 const observer = new MutationObserver(() => {
   if (window.location.pathname !== currentPath) {
     currentPath = window.location.pathname;
-    // console.log("Change in the videos link wich meain the video has changed", currentPath);
 
-    // Callind and Reinjecting Script
-    // To Get New Data Like window._bs
-    // injectScript();
      main();
   }
 });
