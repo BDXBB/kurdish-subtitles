@@ -12,7 +12,7 @@
 *   **Instant Translation:** Automatically translates English subtitles to Kurdish (Sorani) in real time
 *   **Easy to Use:** No configuration needed Just install the extension and enable subtitles on a supported video
 *   **Multi-Platform Support:** works on popular learning and entertainment sites Like :
-    *   YouTube
+    *   YouTube ✅
     *   Udemy
     *   *(More platforms soon?)*
 *   **Open Source:** The code is public and everyone is welcome to contribute

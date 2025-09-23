@@ -130,44 +130,111 @@ let subtitles = null;
         console.error('Translation failed: Maybe Your IP bannded');
       }
     } catch (error) {
-      console.error('Network Translation error:', error);
+      console.error('Error:', error);
     }
   }
- /// ///
-  function showSubtitle(text) {
-    let subtitleBox = document.getElementById("ckb-subtitle");
+ /// Show Subtitle & Style ///
+function showSubtitle(text) {
+  const hostname = window.location.hostname;
+  let subtitleBox = document.getElementById("ckb-subtitle");
+
+  // FRONTEND MASTERS Subtitle Style //
+  if (hostname.includes('frontendmasters.com')) {
     if (!subtitleBox) {
       subtitleBox = document.createElement("div");
       subtitleBox.id = "ckb-subtitle";
       subtitleBox.style.position = "absolute";
       subtitleBox.style.bottom = "10%";
       subtitleBox.style.left = "50%";
-      subtitleBox.style.transform = "translateX(-50%)"; // Smoth Change Between Subtitles
+      subtitleBox.style.transform = "translateX(-50%)";
       subtitleBox.style.background = "rgba(0,0,0,0.7)";
       subtitleBox.style.color = "#fff";
       subtitleBox.style.padding = "8px 16px";
       subtitleBox.style.fontSize = "18px";
       subtitleBox.style.borderRadius = "6px";
-      subtitleBox.style.zIndex = "9999"; // to be always top
+      subtitleBox.style.zIndex = "9999";
       subtitleBox.style.maxWidth = "90%";
       subtitleBox.style.textAlign = "center";
-      if (settings.Tolanguagevalue == 'ku' || settings.Tolanguagevalue == 'fr' || settings.Tolanguagevalue == 'ar') {
-      subtitleBox.style.direction = "rtl";        // Kurdish & Arabic & Farsi has to be rtl
-      } else {
-      subtitleBox.style.direction = "ltr";        // Russian & Turkish so it has to be ltr
-      }
-      subtitleBox.style.unicodeBidi = "embed";
       subtitleBox.style.pointerEvents = "none";
-      const container = document.querySelector(".vjs-text-track-display") || document.querySelector(".FMPlayer2-VideoContainer") || document.body; // FrontEnd Master only
-      // So Don't override .vjs-text-track-display position Because it breaks the captions layout BUT IN CASE vjs-text-track-display does't exist 
-      if (!document.querySelector(".vjs-text-track-display")) {
-      container.style.position = "relative";
+      subtitleBox.style.unicodeBidi = "embed";
+
+      if (settings.Tolanguagevalue === 'ku' || settings.Tolanguagevalue === 'fr' || settings.Tolanguagevalue === 'ar') {
+        subtitleBox.style.direction = "rtl";
+      } else {
+        subtitleBox.style.direction = "ltr";
       }
-      container.appendChild(subtitleBox);
     }
+
+    const container = document.querySelector(".vjs-text-track-display") || document.querySelector(".FMPlayer2-VideoContainer") || document.body;
+    if (!document.querySelector(".vjs-text-track-display")) {
+      container.style.position = "relative";
+    }
+
+    container.appendChild(subtitleBox);
     subtitleBox.innerText = text;
+
   }
-/// ///
+  // YOUTUBE Subtitle Style //
+  else if (hostname.includes('youtube.com')) {
+    const container = document.querySelector('.ytp-caption-window-container');
+    if (!container) return;
+
+    if (!subtitleBox) {
+      subtitleBox = document.createElement('div');
+      subtitleBox.id = 'ckb-subtitle';
+      subtitleBox.className = 'caption-window ytp-caption-window-bottom';
+      subtitleBox.setAttribute('tabindex', '0');
+      subtitleBox.setAttribute('draggable', 'true');
+      subtitleBox.style.touchAction = 'none';
+      subtitleBox.style.textAlign = 'center';
+      subtitleBox.style.left = '50%';
+      subtitleBox.style.width = 'auto';
+      subtitleBox.style.maxWidth = '90%';
+      subtitleBox.style.marginLeft = '0';
+      subtitleBox.style.transform = 'translateX(-50%)';
+      subtitleBox.style.bottom = '2%';
+      subtitleBox.style.zIndex = '10';
+      subtitleBox.style.position = 'absolute';
+
+      if (settings.Tolanguagevalue === 'ku' || settings.Tolanguagevalue === 'fr' || settings.Tolanguagevalue === 'ar') {
+        subtitleBox.style.direction = "rtl";
+      } else {
+        subtitleBox.style.direction = "ltr";
+      }
+      // The Style Taked From Orginal YOUTUBE Subtitles
+      const spanCaptionsText = document.createElement('span');
+      spanCaptionsText.className = 'captions-text';
+      spanCaptionsText.style.overflowWrap = 'normal';
+      spanCaptionsText.style.display = 'block';
+
+      const visualLine = document.createElement('span');
+      visualLine.className = 'caption-visual-line';
+      visualLine.style.display = 'block';
+
+      const captionBox = document.createElement('span');
+      captionBox.className = 'ytp-caption-segment';
+      captionBox.style.display = 'inline-block';
+      captionBox.style.whiteSpace = 'pre-wrap';
+      captionBox.style.background = 'rgba(8, 8, 8, 0.75)';
+      captionBox.style.fontSize = '15.8px';
+      captionBox.style.color = '#ffffff';
+
+      captionBox.innerText = text;
+
+      visualLine.appendChild(captionBox);
+      spanCaptionsText.appendChild(visualLine);
+      subtitleBox.appendChild(spanCaptionsText);
+      container.appendChild(subtitleBox);
+    } else {
+      const captionBox = subtitleBox.querySelector('.ytp-caption-segment');
+      if (captionBox) {
+        captionBox.innerText = text;
+      }
+    }
+  }
+}
+
+/// Show Subtitle & Style ///
 
   async function GetpsVTT(url) {
     const res = await fetch(url);
@@ -312,6 +379,212 @@ function injectScriptForFM() {
   }
 }
 
+/// From https://github.com/devhims/youtube-caption-extractor/blob/main/src/index.ts ///
+const INNERTUBE_API_BASE = 'https://www.youtube.com/youtubei/v1';
+const INNERTUBE_API_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+const WEB_CLIENT_VERSION = '2.20250222.10.00';
+
+class Subtitle {
+  constructor(start, dur, text) {
+    this.start = start;
+    this.dur = dur;
+    this.text = text;
+  }
+}
+
+class VideoDetails {
+  constructor(title, description, subtitles) {
+    this.title = title;
+    this.description = description;
+    this.subtitles = subtitles;
+  }
+}
+
+function generateVisitorData() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  let result = '';
+  for (let i = 0; i < 11; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function getSessionData() {
+  const visitorData = generateVisitorData();
+  return {
+    context: {
+      client: {
+        hl: 'en',
+        gl: 'US',
+        clientName: 'WEB',
+        clientVersion: WEB_CLIENT_VERSION,
+        visitorData: visitorData,
+      },
+      user: { enableSafetyMode: false },
+      request: { useSsl: true },
+    },
+    visitorData: visitorData,
+  };
+}
+
+async function fetchInnertube(endpoint, data) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': '*/*',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'X-Youtube-Client-Version': WEB_CLIENT_VERSION,
+    'X-Youtube-Client-Name': '1',
+    'X-Goog-Visitor-Id': data.visitorData,
+    'Origin': 'https://www.youtube.com',
+    'Referer': 'https://www.youtube.com/',
+  };
+  const url = `${INNERTUBE_API_BASE}${endpoint}?key=${INNERTUBE_API_KEY}`;
+  console.log('Calling',endpoint,url)
+  const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(data) });
+  if (!response.ok) throw new Error(`Status Error ${response.status}`);
+  return response.json();
+}
+
+async function getVideoInfo(videoId) {
+  const sessionData = getSessionData();
+  const payload = {
+    ...sessionData,
+    videoId,
+    playbackContext: {
+      contentPlaybackContext: { vis: 0, splay: false, lactMilliseconds: '-1' },
+    },
+    racyCheckOk: true,
+    contentCheckOk: true,
+  };
+  const playerData = await fetchInnertube('/player', payload);
+
+  if (playerData?.playabilityStatus?.status === 'LOGIN_REQUIRED') {
+    console.log("LOGIN_REQUIRED status - trying next endpoint");
+    const nextPayload = { ...sessionData, videoId };
+    const nextData = await fetchInnertube('/next', nextPayload);
+    console.log(`next API response: ${nextData}`);
+    return [playerData, nextData];
+  } else {
+    console.log(`status: ${playerData?.playabilityStatus?.status}`);
+    return [playerData, null];
+  }
+}
+
+function extractTextFromRuns(runs) {
+  if (!runs) return "";
+  return runs.map(run => run.text || '').join('');
+}
+
+// In The XML There is HTML & XML Something like entities 
+// So function decodes the common named entities back into their original characters
+function decodeHtmlEntities(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code));
+}
+
+
+function extractSubtitlesFromXml(xmlText) {
+  const subtitles = [];
+  const regex = /<text start="([\d.]+)" dur="([\d.]+)">(.*?)<\/text>/gs;
+  let match;
+  while ((match = regex.exec(xmlText)) !== null) {
+    let [_, start, dur, htmlText] = match;
+    let text = decodeHtmlEntities(htmlText.replace(/<[^>]+>/g, ''));
+    if (text.trim()) {
+      const startNum = parseFloat(start);
+      const durNum = parseFloat(dur);
+      const end = (startNum + durNum).toFixed(3); 
+      subtitles.push({
+        start: startNum,
+        end: parseFloat(end),
+        text: text.trim()
+      });
+    }
+  }
+  return subtitles;
+}
+
+async function getSubtitlesFromCaptions(videoId, playerData, lang = 'en') {
+  const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks || []; // It Is Just orginal captionTracks Provided by Video owner OR Youtube ...YouTube also has automatic translation but it is not very good for Kurdish I think 
+  if (!captionTracks.length) {
+    console.warn("No caption tracks found in player data");
+    return [];
+  }
+
+  let subtitleTrack = captionTracks.find(track => {
+    const vssId = track.vssId || '';
+    return vssId.includes(`.${lang}`) || vssId.includes(`a.${lang}`);
+  }) || captionTracks[0];
+
+  if (!subtitleTrack?.baseUrl) {
+    console.log("No suitable caption track found");
+    return [];
+  }
+
+  const captionUrl = subtitleTrack.baseUrl.replace('&fmt=srv3', '');
+
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Referer': `https://www.youtube.com/watch?v=${videoId}`,
+  };
+
+  const response = await fetch(captionUrl, { headers });
+  if (!response.ok) throw new Error(`Failed to fetch captions: ${response.status}`);
+  const xmlText = await response.text();
+
+  if (!xmlText.trim() || !xmlText.includes('<text')) {
+    throw new Error("Caption content is empty or invalid");
+  }
+
+  return extractSubtitlesFromXml(xmlText);
+}
+
+async function getYTSubtitles(videoId, lang = 'en') {
+  try {
+    console.log(`Getting subtitles for ${videoId}`);
+    const [playerData] = await getVideoInfo(videoId);
+    return await getSubtitlesFromCaptions(videoId, playerData, lang);
+  } catch (e) {
+    console.log(`Error getting subtitles: ${e}`);
+    throw e;
+  }
+}
+
+/// ///
+
+async function getDynamicYouTubeSubtitles(videoID, targetLang = 'en'){
+    try {
+    const subtitles = await getYTSubtitles(videoID, targetLang);
+    subtitles.forEach(sub => {
+      console.log(`${sub.start}s - ${parseFloat(sub.end)}s: ${sub.text}`);
+    });
+    return subtitles;
+  } catch (e) {
+    console.error("Error ", e);
+  }
+};
+
+
+// My First Test & Example usage of getSubtitles
+// (async () => {
+//   const videoId = 'V9PVRfjEBTI';
+//   try {
+//     const subtitles = await getSubtitles(videoId, 'en');
+//     console.log("--- Subtitles ---");
+//     subtitles.forEach(sub => {
+//       console.log(`${sub.start}s - ${parseFloat(sub.end)}s: ${sub.text}`);
+//     });
+//   } catch (e) {
+//     console.error("Error ", e);
+//   }
+// })();
+
+
 async function getFrontendMastersSubtitles() {
   return new Promise(resolve => {
     const listener = event => {
@@ -330,6 +603,28 @@ async function getFrontendMastersSubtitles() {
 }
 /// FrontendMasters ///
 
+/// YouTube ///
+async function getYouTubeSubtitles(videoID, targetLang, pathname) {
+  if (videoID) {
+    return getDynamicYouTubeSubtitles(videoID, targetLang)
+  } else {
+    return new Promise(resolve => {
+    const listener = event => {
+      if (event.source === window && event.data.type === 'FROM_PAGE_SCRIPT') {
+        window.removeEventListener('message', listener);
+        const { videoID, pathname} = event.data.payload;
+        if (videoID && pathname) {
+          resolve(getDynamicYouTubeSubtitles(videoID, pathname));
+        }
+      }
+    };
+    window.addEventListener('message', listener);
+    injectScriptForFM(); //  Calling injectScript & Ya injectScriptForFM It is not for just FrondEnd Masters It is like Hybrid 
+  });
+}
+}
+
+/// YouTube ///
 
 
 /// Call & Show ///
@@ -348,6 +643,7 @@ function startTranslation(subtitles) {
     if (current && current.text !== lastText) {
       lastText = current.text;
       // Clean up subtitle text before translation by replaceing whitespace with single space
+      console.log(current.text.trim().replace(/\s+/g, ' '))
       translateAndShow(current.text.trim().replace(/\s+/g, ' '));
     }
   }, 500);
@@ -379,14 +675,21 @@ async function main() {
       subtitles = await GetpsVTT(vttUrl);
     }
   } else if (hostname.includes('youtube.com')) {
-    console.log("Soon ...");
-    subtitles = await getYouTubeSubtitles();
+    // console.log("Soon ...");
+
+    let params = new URLSearchParams(window.location.search);
+    let videoID = params.get('v');
+
+    subtitles = await getYouTubeSubtitles(videoID, 'en',  window.location.pathname);
+
+
   } else if (hostname.includes('udemy.com')) {
     console.log("Soon ...");
   }
 
   if (subtitles && subtitles.length > 0) {
     startTranslation(subtitles);
+    console.log(subtitles)
   } else {
     console.error("subtitles does't exist");
   }
@@ -394,10 +697,12 @@ async function main() {
 
 
 let currentPath = window.location.pathname;
+let currentHerf = window.location.href; // YouTube has Same pathname /watch for his all videos so by using href wich it is the url we can reload the main fun when the user or the player changes the vid...
 // Thank You Stackoverflow https://stackoverflow.com/questions/56889759/how-javascript-engine-detects-dom-changes
 const observer = new MutationObserver(() => {
-  if (window.location.pathname !== currentPath) {
+  if (window.location.pathname !== currentPath || window.location.href != currentHerf) {
     currentPath = window.location.pathname;
+    currentHerf = window.location.href;
 
      main();
   }
