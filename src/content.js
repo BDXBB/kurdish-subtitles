@@ -231,7 +231,39 @@ function showSubtitle(text) {
         captionBox.innerText = text;
       }
     }
+  } else if (hostname.includes('udemy.com')) {
+  const container = document.querySelector('.captions-display--captions-container--PqdGQ') || document.body;
+
+  if (!container) return;
+  if (!subtitleBox) {
+    subtitleBox = document.createElement('div');
+    subtitleBox.id = 'ckb-subtitle';
+    subtitleBox.setAttribute('data-purpose', 'custom-caption-text');
+
+    subtitleBox.style.fontSize = "1.56rem";
+    subtitleBox.style.opacity = "0.75";
+    subtitleBox.style.color = "#fff";
+    subtitleBox.style.background = "rgba(0,0,0,0.6)";
+    subtitleBox.style.padding = "8px 16px";
+    subtitleBox.style.borderRadius = "6px";
+    subtitleBox.style.margin = "8px auto";
+    subtitleBox.style.textAlign = "center";
+    subtitleBox.style.maxWidth = "90%";
+    subtitleBox.style.pointerEvents = "none";
+    subtitleBox.style.unicodeBidi = "embed";
+
+    if (settings.Tolanguagevalue === 'ku' || settings.Tolanguagevalue === 'fr' || settings.Tolanguagevalue === 'ar') {
+      subtitleBox.style.direction = "rtl";
+    } else {
+      subtitleBox.style.direction = "ltr";
+    }
+
+    container.appendChild(subtitleBox);
   }
+
+  subtitleBox.innerText = text;
+}
+
 }
 
 /// Show Subtitle & Style ///
@@ -242,18 +274,33 @@ function showSubtitle(text) {
     return PsTTV(text);
   }
 
-  function PsTTV(vtt) {
-    const blocks = vtt.split('\n\n');
-    return blocks
-      .map(block => {
-        const lines = block.split('\n');
-        if (lines.length >= 2 && lines[1].includes('-->')) { // Start To End
-          const [start, end] = lines[1].split('-->').map(t => ToSeconds(t.trim()));
-          const text = lines.slice(2).join(' ').trim();
-          return { start, end, text };
-        }
-      }).filter(Boolean); // If Output is undefined 
-  }
+function PsTTV(vtt) {
+  const blocks = vtt
+    .replace(/^WEBVTT\s*/i, '')   // Remove WEBVTT
+    .trim()
+    .split(/\n{2,}/);             // Divide texts with two or more line breaks
+
+  return blocks
+    .map(block => {
+      const lines = block.trim().split('\n');
+
+      // Time line it cloud be in lines[0] OR lines[1]
+      let timingLineIndex = lines.findIndex(line => line.includes('-->'));
+      if (timingLineIndex === -1) return null;
+
+      const [start, end] = lines[timingLineIndex]
+        .split('-->')
+        .map(t => ToSeconds(t.trim()));
+
+      const text = lines
+        .slice(timingLineIndex + 1)
+        .join(' ')
+        .trim();
+      return { start, end, text };
+    })
+    .filter(Boolean); // If Output is undefined
+}
+
 
   function ToSeconds(timeStr) {
     if (typeof timeStr !== 'string' || !timeStr.includes(':')) {
@@ -261,9 +308,17 @@ function showSubtitle(text) {
         return 0;
     }
     const parts = timeStr.split(':');
-    const h = parseFloat(parts[0]) || 0;
-    const m = parseFloat(parts[1]) || 0;
-    const s = parseFloat(parts[2].replace(',', '.')) || 0;
+    let h = 0, m = 0, s = 0;
+    if (parts.length === 3) {
+        h = parseFloat(parts[0]) || 0;
+        m = parseFloat(parts[1]) || 0;
+        s = parseFloat(parts[2].replace(',', '.')) || 0;
+  } else if (parts.length === 2) {
+        m = parseFloat(parts[0]) || 0;
+        s = parseFloat(parts[1].replace(',', '.')) || 0;}
+    // const h = parseFloat(parts[0]) || 0;
+    // const m = parseFloat(parts[1]) || 0;
+    // const s = parseFloat(parts[2].replace(',', '.')) || 0;
     return h * 3600 + m * 60 + s;
   }
 
@@ -585,6 +640,8 @@ async function getDynamicYouTubeSubtitles(videoID, targetLang = 'en'){
 // })();
 
 
+
+
 async function getFrontendMastersSubtitles() {
   return new Promise(resolve => {
     const listener = event => {
@@ -627,14 +684,66 @@ async function getYouTubeSubtitles(videoID, targetLang, pathname) {
 /// YouTube ///
 
 
+// Udemy //
+async function getUdemySubtitles(courseid, lectureid) {
+  //https://www.udemy.com/api-2.0/assets/22563452/?fields[asset]=@min,status,delayed_asset_message,processing_errors,time_estimation,media_license_token,media_sources,thumbnail_url,captions,thumbnail_sprite,created&fields[caption]=@default,is_translation
+  // https://www.udemy.com/api-2.0/users/me/subscribed-courses/6435225/lectures/48690463/?fields[lecture]=asset,description,download_url,is_free,last_watched_second&fields[asset]=asset_type,length,media_license_token,course_is_drmed,media_sources,captions,thumbnail_sprite,slides,slide_urls,download_urls,external_url&q=0.12050425496469797
+  let url;
+  if (courseid && lectureid) {
+  const query = Math.random(); // Idk random num
+  url = `https://www.udemy.com/api-2.0/users/me/subscribed-courses/${courseid}/lectures/${lectureid}/?fields[lecture]=asset,description,download_url,is_free,last_watched_second&fields[asset]=asset_type,length,media_license_token,course_is_drmed,media_sources,captions,thumbnail_sprite,slides,slide_urls,download_urls,external_url&q=${query}`;
+  } else if (courseid) {
+  url = `https://www.udemy.com/api-2.0/assets/${courseid}/?fields[asset]=@min,status,delayed_asset_message,processing_errors,time_estimation,media_license_token,media_sources,thumbnail_url,captions,thumbnail_sprite,created&fields[caption]=@default,is_translation`;
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      credentials: "include", // It Won't Work With Out Token & Cookes 
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+
+    if (!response.ok) throw new Error(`Status Error ${response.status}`);
+
+    const data = await response.json();
+        console.log(data)
+    const captions = data?.asset?.captions || data?.captions
+
+    if (!captions || captions.length === 0) {
+      throw new Error("Caption content is empty or invalid");
+    }
+
+    const english = captions.find(caption => caption.locale_id === "en_US")
+    const vttUrl = english.url || captions[0].url;
+    
+    console.log(vttUrl)
+    return vttUrl;
+  } catch (e) {
+    console.error("Error ", e);
+    return null;
+  }
+
+}
+
+// Udemy //
+
 /// Call & Show ///
-function startTranslation(subtitles) {
+async function startTranslation(subtitles) {
   if (subtitleIntervalId !== null) {
     clearInterval(subtitleIntervalId); // Just in case
   }
 
   let lastText = null;
-  const video = document.querySelector("video");
+  let video = document.querySelector("video"); // Sometimes the videos in the pages doesn't load too slow because of internet or thier server
+  while (!video) {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Waite 100ms
+    video = document.querySelector("video");
+  }
+
   if (!video) return;
 
   subtitleIntervalId = setInterval(() => {
@@ -684,7 +793,64 @@ async function main() {
 
 
   } else if (hostname.includes('udemy.com')) {
-    console.log("Soon ...");
+    // console.log("Soon ...");
+    let appInfo = document.querySelector('.ud-app-loader.ud-component--course-taking--app') || document.querySelector('.ud-app-loader.ud-component--course-landing-page.udemy')
+
+if (appInfo) {
+  const HtmlData = appInfo.getAttribute('data-module-args');
+
+  try {
+    // Convert HTML entities To JSON
+    const JsonData = JSON.parse(decodeHtmlEntities(HtmlData));
+
+    console.log(JsonData)
+
+    console.log("Preview :", JsonData?.serverSideProps?.introductionAsset?.course_preview_path )
+
+    console.log("Course ID:", JsonData.courseId || JsonData.course_id);
+    console.log("Lecture ID:", JsonData.initialCurriculumItemId);
+
+    // preview
+    const preview = JsonData?.serverSideProps?.introductionAsset?.course_preview_path;
+    if (preview) {
+      const previewVideoIdMatch = JsonData?.serverSideProps?.introductionAsset?.course_preview_path.match(/startPreviewId=(\d+)/);
+      const previewVideoId = previewVideoIdMatch ? previewVideoIdMatch[1] : null;
+      const course_Id = JsonData.course_id;
+
+      console.log("Preview Video:", previewVideoId);
+
+      const response = await fetch(`https://www.udemy.com/course/${course_Id}/preview/?startPreviewId=${previewVideoId}&uiRegion=introductionAsset&display_type=popup`,{
+      method : "GET",
+      credentials: "include",
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    const text = await response.text()
+    const tempreryDiv = document.createElement("div");
+    tempreryDiv.innerHTML = text;
+    const targetElement = tempreryDiv.querySelector('[data-module-args]');
+    const htmlData = targetElement?.getAttribute('data-module-args');
+    console.log(htmlData)
+
+    }
+
+    const vttUrl = await getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId);
+    if (vttUrl) {
+      subtitles = await GetpsVTT(vttUrl);
+    }
+
+    // console.log(getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId));
+
+  } catch (e) {
+    console.error("Error JSON Convert ", e);
+  }
+} else {
+  console.warn("The ud-app-loader ud-component--course-taking--app div does't exist");
+}
+
   }
 
   if (subtitles && subtitles.length > 0) {
