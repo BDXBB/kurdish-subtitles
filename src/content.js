@@ -729,6 +729,12 @@ async function getUdemySubtitles(courseid, lectureid) {
 
 }
 
+function getCurrentTitle() {
+  const currentPreviewBtn = document.querySelector('button[class*="current-preview-row"]');
+  const titleElementb = currentPreviewBtn?.querySelector('div.ud-heading-sm');
+  return titleElementb?.textContent?.trim() || null;
+}
+
 // Udemy //
 
 /// Call & Show ///
@@ -833,15 +839,28 @@ if (appInfo) {
     tempreryDiv.innerHTML = text;
     const targetElement = tempreryDiv.querySelector('[data-module-args]');
     const htmlData = targetElement?.getAttribute('data-module-args');
-    console.log(htmlData)
+    const JsonDatab = JSON.parse(decodeHtmlEntities(htmlData));
+    console.log(JsonDatab)
 
+    const currentPreviewBtn = document.querySelector('button[class*="current-preview-row"]'); // From current page
+    const titleElementb = currentPreviewBtn?.querySelector('div.ud-heading-sm');
+    const currentTitle = titleElementb?.textContent?.trim();
+
+    const currentVideoData = JsonDatab.previews?.find(video => video.title.trim() === currentTitle);
+     console.log(currentVideoData)
+    const currentVttURL = currentVideoData.captions?.[0]?.url
+
+    if (currentVttURL) {
+      subtitles = await GetpsVTT(currentVttURL);
     }
+
+    } else {
 
     const vttUrl = await getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId);
     if (vttUrl) {
       subtitles = await GetpsVTT(vttUrl);
     }
-
+  }
     // console.log(getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId));
 
   } catch (e) {
@@ -861,19 +880,37 @@ if (appInfo) {
   }
 }
 
+let lastTitle = getCurrentTitle();
 
 let currentPath = window.location.pathname;
 let currentHerf = window.location.href; // YouTube has Same pathname /watch for his all videos so by using href wich it is the url we can reload the main fun when the user or the player changes the vid...
 // Thank You Stackoverflow https://stackoverflow.com/questions/56889759/how-javascript-engine-detects-dom-changes
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver((doc) => {
   if (window.location.pathname !== currentPath || window.location.href != currentHerf) {
     currentPath = window.location.pathname;
     currentHerf = window.location.href;
 
      main();
+  } else if (window.location.hostname.includes('udemy.com')) {
+    // console.log(doc)
+        for (const mutation of doc) {
+    if (mutation.addedNodes.length > 0) {
+      const newTitle = getCurrentTitle();
+      if (newTitle && newTitle !== lastTitle) {
+        lastTitle = newTitle;
+        console.log("Title changed ", newTitle);
+        main();
+        break;
+      }
+    }
+    }
   }
 });
 
-observer.observe(document.body, { childList: true, subtree: true });
+  
+const currentPreviewBtn = document.querySelector('button[class*="current-preview-row"]'); // From current page
+const heading = currentPreviewBtn?.querySelector('div.ud-heading-sm') || document.body;
+
+observer.observe(heading, { childList: true, subtree: true});
 
 Run();
