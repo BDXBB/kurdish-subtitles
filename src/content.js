@@ -127,7 +127,7 @@ let subtitles = null;
         const translatedText = data[0][0][0];
         showSubtitle(translatedText);
       } else {
-        console.error('Translation failed: Maybe Your IP bannded');
+        console.warn('Translation failed: Maybe Your IP bannded');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -494,7 +494,6 @@ async function fetchInnertube(endpoint, data) {
     'Referer': 'https://www.youtube.com/',
   };
   const url = `${INNERTUBE_API_BASE}${endpoint}?key=${INNERTUBE_API_KEY}`;
-  console.log('Calling',endpoint,url)
   const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(data) });
   if (!response.ok) throw new Error(`Status Error ${response.status}`);
   return response.json();
@@ -517,10 +516,8 @@ async function getVideoInfo(videoId) {
     console.log("LOGIN_REQUIRED status - trying next endpoint");
     const nextPayload = { ...sessionData, videoId };
     const nextData = await fetchInnertube('/next', nextPayload);
-    console.log(`next API response: ${nextData}`);
     return [playerData, nextData];
   } else {
-    console.log(`status: ${playerData?.playabilityStatus?.status}`);
     return [playerData, null];
   }
 }
@@ -601,11 +598,10 @@ async function getSubtitlesFromCaptions(videoId, playerData, lang = 'en') {
 
 async function getYTSubtitles(videoId, lang = 'en') {
   try {
-    console.log(`Getting subtitles for ${videoId}`);
     const [playerData] = await getVideoInfo(videoId);
     return await getSubtitlesFromCaptions(videoId, playerData, lang);
   } catch (e) {
-    console.log(`Error getting subtitles: ${e}`);
+    console.warn(`Error getting subtitles: ${e}`);
     throw e;
   }
 }
@@ -615,9 +611,9 @@ async function getYTSubtitles(videoId, lang = 'en') {
 async function getDynamicYouTubeSubtitles(videoID, targetLang = 'en'){
     try {
     const subtitles = await getYTSubtitles(videoID, targetLang);
-    subtitles.forEach(sub => {
-      console.log(`${sub.start}s - ${parseFloat(sub.end)}s: ${sub.text}`);
-    });
+    // subtitles.forEach(sub => {
+    //   console.log(`${sub.start}s - ${parseFloat(sub.end)}s: ${sub.text}`);
+    // });
     return subtitles;
   } catch (e) {
     console.error("Error ", e);
@@ -710,7 +706,6 @@ async function getUdemySubtitles(courseid, lectureid) {
     if (!response.ok) throw new Error(`Status Error ${response.status}`);
 
     const data = await response.json();
-        console.log(data)
     const captions = data?.asset?.captions || data?.captions
 
     if (!captions || captions.length === 0) {
@@ -720,7 +715,6 @@ async function getUdemySubtitles(courseid, lectureid) {
     const english = captions.find(caption => caption.locale_id === "en_US")
     const vttUrl = english.url || captions[0].url;
     
-    console.log(vttUrl)
     return vttUrl;
   } catch (e) {
     console.error("Error ", e);
@@ -735,6 +729,28 @@ function getCurrentTitle() {
   return titleElementb?.textContent?.trim() || null;
 }
 
+async function decodeParse(html) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    const targetElement = tempDiv.querySelector('[data-module-args]');
+    if (!targetElement) throw new Error("data-module-args does't exist");
+    const htmlData = targetElement.getAttribute('data-module-args');
+    return JSON.parse(decodeHtmlEntities(htmlData));
+}
+
+async function getUdemyPreview(courseId, previewVideoId) {
+    const url = `https://www.udemy.com/course/${courseId}/preview/?startPreviewId=${previewVideoId}&uiRegion=introductionAsset&display_type=popup`;
+    const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Accept": "application/json, text/plain, */*",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    });
+    const text = await response.text();
+    return decodeParse(text);
+}
 // Udemy //
 
 /// Call & Show ///
@@ -758,7 +774,7 @@ async function startTranslation(subtitles) {
     if (current && current.text !== lastText) {
       lastText = current.text;
       // Clean up subtitle text before translation by replaceing whitespace with single space
-      console.log(current.text.trim().replace(/\s+/g, ' '))
+      // console.log(current.text.trim().replace(/\s+/g, ' '))
       translateAndShow(current.text.trim().replace(/\s+/g, ' '));
     }
   }, 500);
@@ -790,10 +806,10 @@ async function main() {
       subtitles = await GetpsVTT(vttUrl);
     }
   } else if (hostname.includes('youtube.com')) {
-    // console.log("Soon ...");
 
     let params = new URLSearchParams(window.location.search);
     let videoID = params.get('v');
+    if (!videoID) return console.warn("Youtube video IDdoes't exist");
 
     subtitles = await getYouTubeSubtitles(videoID, 'en',  window.location.pathname);
 
@@ -802,81 +818,60 @@ async function main() {
     // console.log("Soon ...");
     let appInfo = document.querySelector('.ud-app-loader.ud-component--course-taking--app') || document.querySelector('.ud-app-loader.ud-component--course-landing-page.udemy')
 
-if (appInfo) {
+    if (!appInfo) {
+      console.warn("The ud-app-loader ud-component--course-taking--app div does't exist");
+    }
+  
   const HtmlData = appInfo.getAttribute('data-module-args');
+  if (!HtmlData) return console.warn("data-module-args does't exist");
 
   try {
     // Convert HTML entities To JSON
     const JsonData = JSON.parse(decodeHtmlEntities(HtmlData));
-
-    console.log(JsonData)
-
-    console.log("Preview :", JsonData?.serverSideProps?.introductionAsset?.course_preview_path )
-
-    console.log("Course ID:", JsonData.courseId || JsonData.course_id);
-    console.log("Lecture ID:", JsonData.initialCurriculumItemId);
+    const courseId = JsonData.courseId || JsonData.course_id;
+    const lectureId = JsonData.initialCurriculumItemId;
+    const preview = JsonData?.serverSideProps?.introductionAsset?.course_preview_path;
 
     // preview
-    const preview = JsonData?.serverSideProps?.introductionAsset?.course_preview_path;
     if (preview) {
-      const previewVideoIdMatch = JsonData?.serverSideProps?.introductionAsset?.course_preview_path.match(/startPreviewId=(\d+)/);
+      const previewVideoIdMatch = preview.match(/startPreviewId=(\d+)/);
       const previewVideoId = previewVideoIdMatch ? previewVideoIdMatch[1] : null;
-      const course_Id = JsonData.course_id;
 
-      console.log("Preview Video:", previewVideoId);
+      if (!previewVideoId) return;
 
-      const response = await fetch(`https://www.udemy.com/course/${course_Id}/preview/?startPreviewId=${previewVideoId}&uiRegion=introductionAsset&display_type=popup`,{
-      method : "GET",
-      credentials: "include",
-      headers: {
-        "Accept": "application/json, text/plain, */*",
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    });
-
-    const text = await response.text()
-    const tempreryDiv = document.createElement("div");
-    tempreryDiv.innerHTML = text;
-    const targetElement = tempreryDiv.querySelector('[data-module-args]');
-    const htmlData = targetElement?.getAttribute('data-module-args');
-    const JsonDatab = JSON.parse(decodeHtmlEntities(htmlData));
-    console.log(JsonDatab)
-
+    const PreviewData = await getUdemyPreview(courseId, previewVideoId)
     const currentPreviewBtn = document.querySelector('button[class*="current-preview-row"]'); // From current page
     const titleElementb = currentPreviewBtn?.querySelector('div.ud-heading-sm');
     const currentTitle = titleElementb?.textContent?.trim();
 
-    const currentVideoData = JsonDatab.previews?.find(video => video.title.trim() === currentTitle);
-     console.log(currentVideoData)
-    const currentVttURL = currentVideoData.captions?.[0]?.url
+    const currentVideoData = PreviewData.previews?.find(video => video.title.trim() === currentTitle);
+    if (!currentVideoData) return console.warn("currentVideoData does't exist");
+    const currentVideocaptions = currentVideoData.captions?.find(caption => caption.video_label.includes("English"));
+    const vttUrl = currentVideocaptions?.url || currentVideoData.captions?.[0]?.url
 
-    if (currentVttURL) {
-      subtitles = await GetpsVTT(currentVttURL);
+    if (vttUrl) {
+      subtitles = await GetpsVTT(vttUrl);
     }
 
     } else {
 
-    const vttUrl = await getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId);
+    const vttUrl = await getUdemySubtitles(courseId, lectureId);
     if (vttUrl) {
       subtitles = await GetpsVTT(vttUrl);
     }
   }
-    // console.log(getUdemySubtitles(JsonData.courseId, JsonData.initialCurriculumItemId));
 
   } catch (e) {
-    console.error("Error JSON Convert ", e);
+    console.error("Error ", e);
   }
-} else {
-  console.warn("The ud-app-loader ud-component--course-taking--app div does't exist");
-}
 
   }
 
   if (subtitles && subtitles.length > 0) {
     startTranslation(subtitles);
-    console.log(subtitles)
+    // console.log(subtitles)
   } else {
-    console.error("subtitles does't exist");
+    console.warn("subtitles does't exist");
   }
 }
 
