@@ -33,7 +33,8 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({
     translationEnabled: true,
-    Tolanguagevalue: 'ckb'
+    Tolanguagevalue: 'ckb',
+    MNLANGUAGE: 'ckb'
   }, () => {
     console.log("Default settings saved");
   });

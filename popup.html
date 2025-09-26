@@ -124,40 +124,59 @@
   </style>
 </head>
 <body>
-  <h4>Subtitle Settings</h4>
+  <h4 style="text-align: center;">Subtitle Translator</h4>
   <div class="Contener-setting">
-    <label for="toggles-tr">Enable Translation</label>
+    <label for="toggles-tr" data-i18n="label-translate">Enable Translation</label>
     <label class="switch">
       <input type="checkbox" id="toggles-tr">
       <span class="slider"></span>
     </label>
   </div>
   <div class="Contener-setting">
-    <label for="language-select">Language</label>
+    <label for="language-select" data-i18n="label-language">Translate To</label>
     <select id="language-select">
       <!-- <option value="language code ">language</option> -->
-      <option value="ckb">Kurdish (Sorani)</option>
-      <option value="ku">Kurdish (Kurmanji)</option>
-      <option value="ar">Arabic</option>
-      <option value="fa">Farsi</option>
-      <option value="tr">Turkish</option>
-      <option value="ru">Russian</option>
+      <option value="ckb">کوردی (سۆرانی)</option>
+      <option value="ku">Kurdî (Kurmancî)</option>
+      <option value="ar">العربية</option>
+      <option value="fa">فارسی</option>
+      <option value="tr">Türkçe</option>
+      <option value="ru">Русский</option>
     </select>
   </div>
+
+  <!-- Font Size Section -->
+  <div class="Contener-setting">
+      <label for="font-size" style="font-size: 14px;" data-i18n="label-font-size">Subtitle Font Size</label>
+      <input type="range" id="font-size" min="10" max="70" value="20">
+  </div>
+
 
   <!-- Accordion Section -->
   <div class="accordion" id="settings">
     <div class="accordion-header" id="settings-header">
-      <span class="accordion-arrow">›</span>Settings
+      <span class="accordion-arrow"> › </span>
+      <span data-i18n="settings">Settings</span>
     </div>
     <div class="accordion-content">
+
+    <div class="Contener-setting">
+    <label for="change-language" data-i18n="change-language">Language</label>
+    <select id="change-language">
+      <!-- <option value="language code ">language</option> -->
+      <option value="ckb">کوردی (سۆرانی)</option>
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+    </select>
+    </div>
+
       <label for="api-key-input">Google API Key (Optional)</label>
-      <p >In Case Your IP Got Banned You Can Use Your Own Api Key For Google translation</p>
+      <p data-i18n="api-key-descrip">In Case Your IP Got Banned You Can Use Your Own Api Key For Google translation</p>
       <input type="text" id="api-key-input" placeholder="Enter your key here" autocomplete="off">
       <div class="Contener-setting" style="margin-top: 10px; justify-content: flex-end;">
         <span class="api-status" id="api-key-status"></span>
-        <button id="delete-api-key">Delete</button>
-        <button id="save-api-key">Save</button>
+        <button id="delete-api-key" data-i18n="delete-btn">Delete</button>
+        <button id="save-api-key" data-i18n="save-btn">Save</button>
       </div>
     </div>
   </div>

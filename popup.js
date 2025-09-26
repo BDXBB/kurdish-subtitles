@@ -1,4 +1,56 @@
 
+//
+const translations = {
+  en: {
+    "label-translate": "Enable Translation",
+    "label-language": "Translate To",
+    "change-language": "Language",
+    "label-font-size": "Font Size",
+    "settings": "Settings",
+    "api-key-descrip": "In Case Your IP Got Banned You Can Use Your Own Api Key For Google translation",
+    "delete-btn": "Delete",
+    "save-btn": "Save"
+  },
+  ckb: {
+    "label-translate": "چالاککردنی وەرگێڕان",
+    "label-language": "وەرگێڕان بۆ",
+    "change-language": "زمان",
+    "label-font-size": "گەورەیی فۆنت ",
+    "settings": "ڕێکخستنەکان",
+    "api-key-descrip": "ئەگەر IP ـەکەت بلۆک کرا دەتوانی کلیلەکەی خۆت بەکاربەیت بۆ وەرگێڕانی لە گووگڵ",
+    "delete-btn": "سڕینەوە",
+    "save-btn": "پاشەکەوتکردن"
+  },
+  ar: {
+    "label-translate": "تفعيل الترجمة",
+    "label-language": "ترجمة الى",
+    "change-language": "اللغة",
+    "label-font-size": "حجم خط الترجمة",
+    "settings": "الإعدادات",
+    "api-key-descrip": "في حال تم حظر عنوان IP الخاص بك يمكنك استخدام مفتاح API الخاص بك لترجمة Google",
+    "delete-btn": "حذف",
+    "save-btn": "حفظ"
+  }
+};
+
+function updateUILabels(lang) {
+  const dict = translations[lang];
+  if (!dict) return;
+
+  document.querySelectorAll("[data-i18n]").forEach((elment) => {
+    const key = elment.getAttribute("data-i18n");
+    if (dict[key]) {
+      elment.textContent = dict[key];
+    }
+  });
+
+  const rtlLans = ["ar", "ckb"];
+  const dir = rtlLans.includes(lang) ? "rtl" : "ltr";
+  document.body.setAttribute("dir", dir);
+}
+
+
+
 // Control HTML & Send Data or changes to Content.js
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const Fromlanguage = document.getElementById('language-select');
   const header = document.getElementById('settings-header');
   const accordion = document.getElementById('settings');
+  const Changelanguage = document.getElementById("change-language");
 
   if (header && accordion) {
     header.addEventListener('click', () => {
@@ -17,12 +70,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveButton = document.getElementById('save-api-key');
   const deleteButton = document.getElementById('delete-api-key');
   const statusSpan = document.getElementById('api-key-status');
+  const fontSize = document.getElementById('font-size');
 
   // Default Settings & Saved Settings Based On Storage 
-  chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue'], (result) => {
+  chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue', 'MNLANGUAGE'], (result) => {
+    console.log(result)
     Switch.checked = result.translationEnabled  === true;; // Default
     if (result.Tolanguagevalue) {
       Fromlanguage.value = result.Tolanguagevalue;
+    }
+    if (result.MNLANGUAGE) {
+      updateUILabels(result.MNLANGUAGE);
+      Changelanguage.value = result.MNLANGUAGE;
     }
   });
 
@@ -75,5 +134,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
   });
 
+  fontSize.addEventListener('input', (fonts) => {
+    const Value = fonts.target.value;
+    chrome.storage.sync.set({ FONT_SIZE: Value });
+    MsgToContent({ type: 'FONT_SIZE', Value: Value });
+  })
+
+  chrome.storage.sync.get("FONT_SIZE", (result) => {
+    if (result.FONT_SIZE) {
+      fontSize.value =  result.FONT_SIZE;
+    }
+  });
+
+Changelanguage.addEventListener("change", () => {
+  const lang = Changelanguage.value;
+  updateUILabels(lang);
+  chrome.storage.sync.set({ MNLANGUAGE: lang });
 });
 
+
+});

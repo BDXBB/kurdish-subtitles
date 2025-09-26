@@ -134,9 +134,25 @@ let subtitles = null;
     }
   }
  /// Show Subtitle & Style ///
-function showSubtitle(text) {
+
+function getFont() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get("FONT_SIZE", (result) => {
+      if (result.FONT_SIZE) {
+        resolve(`${result.FONT_SIZE}px`);
+      } else {
+        resolve(`18px`);
+      }
+    });
+  });
+}
+// chrome.storage.sync.get IS asynchronously So the code runs BEFORE fontSize is updated 
+async function showSubtitle(text) {
   const hostname = window.location.hostname;
   let subtitleBox = document.getElementById("ckb-subtitle");
+  let fontSize = await getFont();
+
+  console.log(fontSize)
 
   // FRONTEND MASTERS Subtitle Style //
   if (hostname.includes('frontendmasters.com')) {
@@ -150,7 +166,7 @@ function showSubtitle(text) {
       subtitleBox.style.background = "rgba(0,0,0,0.7)";
       subtitleBox.style.color = "#fff";
       subtitleBox.style.padding = "8px 16px";
-      subtitleBox.style.fontSize = "18px";
+      subtitleBox.style.fontSize = fontSize;
       subtitleBox.style.borderRadius = "6px";
       subtitleBox.style.zIndex = "9999";
       subtitleBox.style.maxWidth = "90%";
@@ -216,7 +232,7 @@ function showSubtitle(text) {
       captionBox.style.display = 'inline-block';
       captionBox.style.whiteSpace = 'pre-wrap';
       captionBox.style.background = 'rgba(8, 8, 8, 0.75)';
-      captionBox.style.fontSize = '15.8px';
+      captionBox.style.fontSize = fontSize;
       captionBox.style.color = '#ffffff';
 
       captionBox.innerText = text;
@@ -231,8 +247,8 @@ function showSubtitle(text) {
         captionBox.innerText = text;
       }
     }
-  } else if (hostname.includes('udemy.com')) {
-  const container = document.querySelector('.captions-display--captions-container--PqdGQ') || document.body;
+  } else if (hostname.includes('udemy.com')) { //  Change .captions-display--captions-container--PqdGQ, because it is not static and cannot be trusted, so maybee class name that remains stable
+  const container = document.querySelector('[class*="captions-display--captions-container"]') || document.body; 
 
   if (!container) return;
   if (!subtitleBox) {
@@ -240,9 +256,9 @@ function showSubtitle(text) {
     subtitleBox.id = 'ckb-subtitle';
     subtitleBox.setAttribute('data-purpose', 'custom-caption-text');
 
-    subtitleBox.style.fontSize = "1.56rem";
+    subtitleBox.style.fontSize = fontSize;
     subtitleBox.style.opacity = "0.75";
-    subtitleBox.style.color = "#fff";
+    subtitleBox.style.color = "#ffffff";
     subtitleBox.style.background = "rgba(0,0,0,0.6)";
     subtitleBox.style.padding = "8px 16px";
     subtitleBox.style.borderRadius = "6px";
@@ -341,7 +357,7 @@ function StopACleanup() {
   subtitles = null;
   const oldBox = document.getElementById("ckb-subtitle");
   if (oldBox) oldBox.remove();
-  console.log("Stoped & clean up");
+  console.log("Clean up");
 }
 
 
@@ -369,6 +385,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       PAG_API_KEY =  message.PAG_API_KEY;
     } else {
       PAG_API_KEY = null;
+    }
+  } else if (message.type === 'FONT_SIZE') {
+      if (message.Value){
+      const subtitleBox = document.getElementById("ckb-subtitle");
+      if (subtitleBox) {
+      const segment = subtitleBox.querySelector(".ytp-caption-segment");
+      if (segment) {
+        segment.style.fontSize = `${message.Value}px`;
+      } else {
+        subtitleBox.style.fontSize = `${message.Value}px`;
+      }
+      }
     }
   }
 });
