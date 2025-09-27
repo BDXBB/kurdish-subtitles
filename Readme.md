@@ -1,23 +1,36 @@
 # Kurdish Subtitles
 
 
-[![Watch the demo](./Preview/image.png)](https://drive.google.com/file/d/1j65tz-Zqc0iprplH7D7nwJkDfDY4644q/view)
 
-> **A browser extension translates video subtitles from other languges into Kurdish**
+> **A browser extension translates video subtitles (captions) from other languges into Kurdish**
+
+### 🎬 Demo Video
+
+[![▶ Watch the Demo](https://img.shields.io/badge/Watch%20Demo-%F0%9F%93%BA-blue?style=for-the-badge)](https://github.com/user-attachments/assets/841fab11-2496-4730-bce3-c93358059e8b)
+
+
+---
+
+### Preview Screenshots 🖼️
+
+| ![](./Preview/image1.png) | ![](./Preview/image2.png) | ![](./Preview/image3.png) |
+|---------------------------|---------------------------|---------------------------|
 
 ---
 
 ## Features ✨
 
-*   **Instant Translation:** Automatically translates English subtitles to Kurdish (Sorani) in real time
+*   **Instant Translation:** Automatically translates English & other languages to Kurdish (Sorani) in real time
 *   **Easy to Use:** No configuration needed Just install the extension and enable subtitles on a supported video
 *   **Multi-Platform Support:** works on popular learning and entertainment sites Like :
     *   YouTube ✅
-    *   Udemy
+    *   FrontendMaster ✅
+    *   Udemy ✅
+    *   linkedin
     *   *(More platforms soon?)*
 *   **Open Source:** The code is public and everyone is welcome to contribute
 
-> Want to see another site supported? Feel free to open an issue to request it?
+> Want to see another site supported? Feel free to open an issue to request it? or just Contact us
 
 ---
 
@@ -27,7 +40,7 @@
 
  ## Installation & Usage 
 
-> **Note ⚠️:** This extension requires manual installation for now You Can Use Any Browser
+> **Note ⚠️:** This extension requires  **manual installation** for now You Can Use Any Browser
 
 1.  **Download the Extension:**
     *   Go to the [**Releases Page**](https://github.com/BDXBB/kurdish-subtitles/releases) of this repository.
@@ -41,8 +54,9 @@
     *   Select the folder you unzipped in the first step.
 
 3.  **How to Use:** 
-    *   open the [frontendmasters](https://frontendmasters.com/) site
+    *   open the Supported Website
     *   The extension will automatically display the Kurdish translation
+> **Note ⚠️:** Translation works only if the video already has Subtitles available
 
 ---
 
@@ -73,7 +87,10 @@ We have many ideas to improve this extension Here are some of the main goals:
     *   Persian (Farsi) ✅
     *   Russian ✅
     *   Turkish ✅
-*   **Multi-Language Popup menu:** Soon 
+*   **Multi-Language Popup menu:**
+    *   Kurdish (Kurmanji) ✅
+    *   English ✅
+    *   Arabic ✅
 *   **Official Store Publication:** Publishing the extension to the `Chrome Web Store If i had $$$` and Firefox Add-ons store for easy one click installation Soon
 
 ---
@@ -93,3 +110,7 @@ If you have any suggestion that would make this better please fork the repo and 
 
 ## Contact 📧
  [![Telegram: SILVER](https://img.shields.io/badge/Telegram%20-blue.svg?logo=telegram)](https://t.me/BDXBB)
+
+ ---
+
+ Made with ❤️ for Kurdish learners
