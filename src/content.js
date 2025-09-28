@@ -827,12 +827,21 @@ async function main() {
 
   //Switching by Domain name
   if (hostname.includes('frontendmasters.com')) {
-    console.log("Frontend Masters");
-    injectScriptForFM(); //  Calling injectScript
-    const vttUrl = await getFrontendMastersSubtitles();
-    if (vttUrl) {
-      subtitles = await GetpsVTT(vttUrl);
-    }
+     console.log("Frontend Masters");
+     let vttUrl;
+     const previewVideo = document.querySelector('.PromoPlayer video[data-fmp]');
+
+      if (previewVideo && previewVideo?.dataset?.fmp) {
+          const vtt = previewVideo.dataset.fmp;
+          vttUrl = vtt + '/captions.vtt';
+          subtitles = await GetpsVTT(vttUrl);
+      } else {
+          injectScriptForFM(); //  Calling injectScript
+          vttUrl = await getFrontendMastersSubtitles();
+          if (vttUrl) {
+            subtitles = await GetpsVTT(vttUrl);
+        }
+      }
   } else if (hostname.includes('youtube.com')) {
 
     let params = new URLSearchParams(window.location.search);
