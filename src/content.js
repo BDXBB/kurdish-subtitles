@@ -138,7 +138,7 @@ let subtitles = null;
 function getFont() {
   return new Promise((resolve) => {
     chrome.storage.sync.get("FONT_SIZE", (result) => {
-      if (result.FONT_SIZE) {
+      if (result?.FONT_SIZE) {
         resolve(`${result.FONT_SIZE}px`);
       } else {
         resolve(`18px`);
@@ -367,7 +367,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     settings.translationEnabled = message.enabled;
     if (settings.translationEnabled) {
         chrome.storage.sync.get("PAG_API_KEY", (result) => {
-          if (result.PAG_API_KEY) {
+          if (result?.PAG_API_KEY) {
             PAG_API_KEY =  result.PAG_API_KEY;
           }
         });
@@ -810,9 +810,9 @@ async function startTranslation(subtitles) {
 
 function Run() {
     chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue', 'PAG_API_KEY'], (result) => {
-        settings.translationEnabled = result.translationEnabled !== false;
-        settings.Tolanguagevalue = result.Tolanguagevalue || 'ckb';
-        settings.PAG_API_KEY = result.PAG_API_KEY || null;
+        settings.translationEnabled = result?.translationEnabled !== false;
+        settings.Tolanguagevalue = result?.Tolanguagevalue || 'ckb';
+        settings.PAG_API_KEY = result?.PAG_API_KEY || null;
         main();
     });
 }

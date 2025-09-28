@@ -74,12 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Default Settings & Saved Settings Based On Storage 
   chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue', 'MNLANGUAGE'], (result) => {
-    console.log(result)
-    Switch.checked = result.translationEnabled  === true;; // Default
-    if (result.Tolanguagevalue) {
+    const translationEnabled = result?.translationEnabled ?? true; // Default
+    Switch.checked = translationEnabled;
+    if (result?.Tolanguagevalue) {
       Fromlanguage.value = result.Tolanguagevalue;
     }
-    if (result.MNLANGUAGE) {
+    if (result?.MNLANGUAGE) {
       updateUILabels(result.MNLANGUAGE);
       Changelanguage.value = result.MNLANGUAGE;
     }
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   chrome.storage.sync.get("PAG_API_KEY", (result) => {
-    if (result.PAG_API_KEY) {
+    if (result?.PAG_API_KEY) {
       apiKeyInput.value =  result.PAG_API_KEY;
     }
   });
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   chrome.storage.sync.get("FONT_SIZE", (result) => {
-    if (result.FONT_SIZE) {
+    if (result?.FONT_SIZE) {
       fontSize.value =  result.FONT_SIZE;
     }
   });
