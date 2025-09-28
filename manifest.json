@@ -23,7 +23,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.frontendmasters.com/courses/*", "https://www.youtube.com/watch*", "https://www.udemy.com/*"],
+      "matches": ["https://*.frontendmasters.com/*", "https://www.youtube.com/*", "https://www.udemy.com/*"],
       "js": ["src/content.js"]
     }
   ],
