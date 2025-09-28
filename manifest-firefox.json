@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "Kurdish Subtitles",
+  "version": "0.11.2",
+  "description": "A browser extension translates video subtitles from other languages into Kurdish and more",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "notifications",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "icons": {
+    "128": "src/icons/128.png"
+  },
+  "background": {
+    "scripts": ["src/background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.frontendmasters.com/courses/*", "https://www.youtube.com/watch*", "https://www.udemy.com/*"],
+      "js": ["src/content.js"]
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": ["src/injector.js"],
+  "homepage_url": "https://github.com/BDXBB/kurdish-subtitles"
+}
