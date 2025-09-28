@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fontSize = document.getElementById('font-size');
 
   // Default Settings & Saved Settings Based On Storage 
-  chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue', 'MNLANGUAGE'], (result) => {
+  chrome.storage.local.get(['translationEnabled', 'Tolanguagevalue', 'MNLANGUAGE'], (result) => {
     const translationEnabled = result?.translationEnabled ?? true; // Default
     Switch.checked = translationEnabled;
     if (result?.Tolanguagevalue) {
@@ -96,18 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // TOGGLE_IS ON ? OFF 
   Switch.addEventListener('change', () => {
     const isEnabled = Switch.checked;
-    chrome.storage.sync.set({ translationEnabled: isEnabled });
+    chrome.storage.local.set({ translationEnabled: isEnabled });
     MsgToContent({ type: 'TOGGLE_IS', enabled: isEnabled });
   });
 
   // Change LANGUAGE
   Fromlanguage.addEventListener('change', () => {
     const lang = Fromlanguage.value;
-    chrome.storage.sync.set({ Tolanguagevalue: lang });
+    chrome.storage.local.set({ Tolanguagevalue: lang });
     MsgToContent({ type: 'LANGUAGE_IS', language: lang });
   });
 
-  chrome.storage.sync.get("PAG_API_KEY", (result) => {
+  chrome.storage.local.get("PAG_API_KEY", (result) => {
     if (result?.PAG_API_KEY) {
       apiKeyInput.value =  result.PAG_API_KEY;
     }
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
   saveButton.addEventListener('click', () => {
     const key = apiKeyInput.value.trim();
     if (key) {
-      chrome.storage.sync.set({ PAG_API_KEY: key });
+      chrome.storage.local.set({ PAG_API_KEY: key });
       statusSpan.textContent = 'Key saved ✅';
       MsgToContent({ type: 'PAG_API_KEY', enabled: true, PAG_API_KEY: key});
     } else {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Delete Api key
   deleteButton.addEventListener('click', () => {
-  chrome.storage.sync.remove("PAG_API_KEY", () => {
+  chrome.storage.local.remove("PAG_API_KEY", () => {
     apiKeyInput.value = '';
     MsgToContent({ type: 'PAG_API_KEY', enabled: false });
     statusSpan.textContent = 'Key deleted ❌';
@@ -136,11 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fontSize.addEventListener('input', (fonts) => {
     const Value = fonts.target.value;
-    chrome.storage.sync.set({ FONT_SIZE: Value });
+    chrome.storage.local.set({ FONT_SIZE: Value });
     MsgToContent({ type: 'FONT_SIZE', Value: Value });
   })
 
-  chrome.storage.sync.get("FONT_SIZE", (result) => {
+  chrome.storage.local.get("FONT_SIZE", (result) => {
     if (result?.FONT_SIZE) {
       fontSize.value =  result.FONT_SIZE;
     }
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 Changelanguage.addEventListener("change", () => {
   const lang = Changelanguage.value;
   updateUILabels(lang);
-  chrome.storage.sync.set({ MNLANGUAGE: lang });
+  chrome.storage.local.set({ MNLANGUAGE: lang });
 });
 
 

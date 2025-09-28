@@ -137,7 +137,7 @@ let subtitles = null;
 
 function getFont() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get("FONT_SIZE", (result) => {
+    chrome.storage.local.get("FONT_SIZE", (result) => {
       if (result?.FONT_SIZE) {
         resolve(`${result.FONT_SIZE}px`);
       } else {
@@ -146,7 +146,7 @@ function getFont() {
     });
   });
 }
-// chrome.storage.sync.get IS asynchronously So the code runs BEFORE fontSize is updated 
+// chrome.storage.local.get IS asynchronously So the code runs BEFORE fontSize is updated 
 async function showSubtitle(text) {
   const hostname = window.location.hostname;
   let subtitleBox = document.getElementById("ckb-subtitle");
@@ -366,7 +366,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TOGGLE_IS') {
     settings.translationEnabled = message.enabled;
     if (settings.translationEnabled) {
-        chrome.storage.sync.get("PAG_API_KEY", (result) => {
+        chrome.storage.local.get("PAG_API_KEY", (result) => {
           if (result?.PAG_API_KEY) {
             PAG_API_KEY =  result.PAG_API_KEY;
           }
@@ -809,7 +809,7 @@ async function startTranslation(subtitles) {
 }
 
 function Run() {
-    chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue', 'PAG_API_KEY'], (result) => {
+    chrome.storage.local.get(['translationEnabled', 'Tolanguagevalue', 'PAG_API_KEY'], (result) => {
         settings.translationEnabled = result?.translationEnabled !== false;
         settings.Tolanguagevalue = result?.Tolanguagevalue || 'ckb';
         settings.PAG_API_KEY = result?.PAG_API_KEY || null;

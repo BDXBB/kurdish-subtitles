@@ -14,7 +14,7 @@
 //     // console.log("Rs") Debagging I know But It Working < ` _ ` > 
 //   if (changeInfo.status === "complete") {
 //     // console.log("Rss")
-//     chrome.storage.sync.get(['translationEnabled', 'Tolanguagevalue'], (result) => {
+//     chrome.storage.local.get(['translationEnabled', 'Tolanguagevalue'], (result) => {
 //       const isEnabled = result.translationEnabled === true;
 //       const lang = result.Tolanguagevalue || 'ckb';
 
@@ -31,7 +31,7 @@
 /// Just Default settings & notifications 
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     translationEnabled: true,
     Tolanguagevalue: 'ckb',
     MNLANGUAGE: 'ckb'
