@@ -758,13 +758,15 @@ function getCurrentTitle() {
 }
 
 async function decodeParse(html) {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html;
-    const targetElement = tempDiv.querySelector('[data-module-args]');
-    if (!targetElement) throw new Error("data-module-args does't exist");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const targetElement = doc.querySelector('[data-module-args]');
+    if (!targetElement) throw new Error("data-module-args doesn't exist");
     const htmlData = targetElement.getAttribute('data-module-args');
     return JSON.parse(decodeHtmlEntities(htmlData));
 }
+
 
 async function getUdemyPreview(courseId, previewVideoId) {
     const url = `https://www.udemy.com/course/${courseId}/preview/?startPreviewId=${previewVideoId}&uiRegion=introductionAsset&display_type=popup`;
