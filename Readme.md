@@ -1,6 +1,6 @@
 # Kurdish Subtitles
 
-- [کوردی](READMEKr.md)
+- [کوردی](ReadmeKr.md)
 
 > **A browser extension translates video subtitles (captions) from other languges into Kurdish**
 
