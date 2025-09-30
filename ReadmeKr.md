@@ -6,7 +6,7 @@
 
 ### 🎬 ڤیدیۆ
 
-[![▶ Watch the Demo](https://img.shields.io/badge/Watch%20Demo-%F0%9F%93%BA-blue?style=for-the-badge)](https://github.com/user-attachments/assets/841fab11-2496-4730-bce3-c93358059e8b)
+[![▶ Watch the Demo](https://img.shields.io/badge/Watch%20Demo-%F0%9F%93%BA-blue?style=for-the-badge)](https://github.com/user-attachments/assets/8554d1d3-c20e-4691-9a7f-287729c40966)
 
 ---
 
