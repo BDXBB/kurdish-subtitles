@@ -39,20 +39,26 @@
  Well I am a student and I watch courses and videos in English, for example, Frontend Master courses. I know a little bit of English and I understand it somewhat, but sometimes there are words that I do not understand So That is why I came up with this idea: a browser extension that translates video subtitles into Kurdish helping me and others  understand the content subtitles more clearly
 
  ## Installation & Usage 
+ 
+ ### For Firefox Users ✅
 
-> **Note ⚠️:** This extension requires  **manual installation** for now You Can Use Edge,Chrome,Brave,
+ The extension is now officially available on the Firefox Add-ons Store (*^_^*)
+
+👉 [Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/kurdish-subtitles/)
+
+No need for manual installation just click "Add to Firefox" and you're done.
+
+---
+
+### For Chrome, Edge, Brave (Manual Installation)
+
+> **Note ⚠️:** This extension still requires  **manual installation** for now on Chrome, Edge, Brave
 
 1.  **Download the Extension:**
     *   Go to the [**Releases Page**](https://github.com/BDXBB/kurdish-subtitles/releases) of this repository.
-    *   For Firefox, download the specially provided `Firefox .xpi` file (no need to unzip)
     *   For Chrome and other browsers, download the `.zip` file and unzip it on your compute
 
-2.  **Install in Your Browser :**
-   - **Firefox:**  
-     - Open Firefox
-     - Go to the menu and select "Add-ons and Themes" → "Extensions"
-     - Click the gear ⚙ icon → "Install Add-on From File" and select the `.xpi` file you downloaded
-   - **Chrome (and other browsers):**
+2.  **Install in Your Browser Chrome (and other browsers) :**
      - Open your browser and navigate to `chrome://extensions`.
      - In the top-right corner enable **"Developer mode"**.
      - Click the **"Load unpacked"** button.
@@ -96,8 +102,11 @@ We have many ideas to improve this extension Here are some of the main goals:
     *   Kurdish (Kurmanji) ✅
     *   English ✅
     *   Arabic ✅
-   **Official Store Publication:** Publishing the extension to the `Chrome Web Store If i had $$$` and Firefox Add-ons store for easy one click installation Soon
-*  **Mobile App (Android & iOS):** Support for mobile devices (Android & iOS) With Flutter soon
+*   **Official Store Publication:** Publishing the extension for easy one click installation 
+    *   **Firefox Add-ons Store:** ✅ Available now: [Install from Firefox](https://addons.mozilla.org/firefox/addon/kurdish-subtitles/)
+    * **Chrome Web Store:** if I create a Devloper account for $5 not yet
+    * **Edge Web Store:** Soon
+*  **Mobile App (Android & iOS):** Support for mobile devices (Android & iOS) With Flutter [Kurdish Subtitles app](https://github.com/BDXBB/kurdish-subtitles-app) Soon
 ---
 
 ## Contributing 🤝 
