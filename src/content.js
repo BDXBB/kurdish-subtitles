@@ -578,11 +578,11 @@ function extractSubtitlesFromXml(xmlText) {
     if (text.trim()) {
       const startNum = parseFloat(start);
       const durNum = parseFloat(dur);
-      const end = (startNum + durNum).toFixed(3); 
+      const end = (startNum + durNum); // toFixed(3) not use full  
       subtitles.push({
         start: startNum,
-        end: parseFloat(end),
-        text: text.trim()
+        end: end,
+        text: text
       });
     }
   }
@@ -624,29 +624,170 @@ async function getSubtitlesFromCaptions(videoId, playerData, lang = 'en') {
   return extractSubtitlesFromXml(xmlText);
 }
 
-async function getYTSubtitles(videoId, lang = 'en') {
+async function getTranscriptFromEngagementPanel(videoId, nextData) {
+
+    const transcriptPanel = nextData.engagementPanels.find(
+    (panel) =>
+      panel?.engagementPanelSectionListRenderer?.panelIdentifier ===
+      'engagement-panel-searchable-transcript'
+  );
+
+    if (!transcriptPanel) {
+    console.warn(` No transcript engagement panel found`);
+    return [];
+  }
+
+  // Extract continuation token for transcript
+  const content = transcriptPanel.engagementPanelSectionListRenderer?.content;
+
+  // Extract continuation token for transcript API
+
+  // Try multiple ways to find the continuation token
+  let continuationItem;
+  let token;
+
+  // Method 1: Direct continuationItemRenderer
+  continuationItem = content?.continuationItemRenderer;
+
+  // Check for different token/params structures
+  if (continuationItem?.continuationEndpoint?.continuationCommand?.token) {
+    token = continuationItem.continuationEndpoint.continuationCommand.token;
+    console.log(` Found token via continuationCommand`);
+  } else if (
+    continuationItem?.continuationEndpoint?.getTranscriptEndpoint?.params
+  ) {
+    token = continuationItem.continuationEndpoint.getTranscriptEndpoint.params;
+    console.log(` Found token via getTranscriptEndpoint`);
+  }
+
+  // Method 2: Inside sectionListRenderer
+  if (!token && content?.sectionListRenderer?.contents?.[0]) {
+    continuationItem =
+      content.sectionListRenderer.contents[0].continuationItemRenderer;
+    if (continuationItem?.continuationEndpoint?.continuationCommand?.token) {
+      token = continuationItem.continuationEndpoint.continuationCommand.token;
+    }
+  }
+
+  // Method 3: Look for transcriptRenderer with footer
+  if (!token && content?.sectionListRenderer?.contents) {
+    for (const item of content.sectionListRenderer.contents) {
+      if (item?.transcriptRenderer) {
+        // Look for footer with continuation
+        const footer = item.transcriptRenderer.footer;
+        if (
+          footer?.transcriptFooterRenderer?.languageMenu
+            ?.sortFilterSubMenuRenderer?.subMenuItems
+        ) {
+          // Find English or first available language
+          const menuItems =
+            footer.transcriptFooterRenderer.languageMenu
+              .sortFilterSubMenuRenderer.subMenuItems;
+          const englishItem =
+            menuItems.find(
+              (item) =>
+                item?.title?.toLowerCase().includes('english') ||
+                item?.selected === true
+            ) || menuItems[0];
+
+          if (englishItem?.continuation?.reloadContinuationData?.continuation) {
+            token =
+              englishItem.continuation.reloadContinuationData.continuation;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  if (!token) {
+    console.warn(` No continuation token found in transcript panel`);
+    return [];
+  }
+
+    // Call the get_transcript endpoint
+  const sessionData = getSessionData();
+  const transcriptPayload = {
+    ...sessionData,
+    params: token,
+  };
+
+  const transcriptResponse = await fetchInnertube(
+    '/get_transcript',
+    transcriptPayload
+  );
+
+  if (!transcriptResponse) {
+    throw new Error(
+      `Transcript API failed: ${transcriptResponse.status} ${transcriptResponse.statusText}`
+    );
+  }
+
+  // Parse transcript segments
+  const segments =
+    transcriptResponse?.actions?.[0]?.updateEngagementPanelAction?.content
+      ?.transcriptRenderer?.content?.transcriptSearchPanelRenderer?.body
+      ?.transcriptSegmentListRenderer?.initialSegments;
+
+  if (!segments || !Array.isArray(segments)) {
+    console.warn(` No transcript segments found`);
+    return [];
+  }
+
+  // Successfully parsing transcript segments
+
+  const subtitles = [];
+  let debugCount = 0;
+
+
+  for (const segment of segments) {
+    if (segment.transcriptSegmentRenderer) {
+      const renderer = segment.transcriptSegmentRenderer;
+
+      // Extract subtitle data
+
+      const startMs = parseFloat(renderer.startMs || '0');
+      const endMs = parseFloat(renderer.endMs || '0');
+
+      // Try different text extraction paths
+      let text = '';
+      if (renderer.snippet?.simpleText) {
+        text = renderer.snippet.simpleText;
+      } else if (renderer.snippet?.runs) {
+        text = renderer.snippet.runs.map((run) => run.text).join('');
+      } else if (renderer.snippet?.text) {
+        text = renderer.snippet.text;
+      }
+
+      if (text.trim()) {
+        subtitles.push({
+          start: (startMs / 1000),
+          end: (endMs / 1000),
+          text: decodeHtmlEntities(text),
+        });
+      }
+    }
+  }
+
+  return subtitles;
+
+}
+
+/// ///
+
+async function getDynamicYouTubeSubtitles(videoID, lang = 'en'){
   try {
-    const [playerData] = await getVideoInfo(videoId);
-    return await getSubtitlesFromCaptions(videoId, playerData, lang);
+    const [playerData, nextData] = await getVideoInfo(videoID);
+    if (nextData) {
+      return await getTranscriptFromEngagementPanel(videoID, nextData)
+      // console.log(getTranscriptFromEngagement)
+    }
+    return await getSubtitlesFromCaptions(videoID, playerData, lang);
   } catch (e) {
     console.warn(`Error getting subtitles: ${e}`);
     throw e;
   }
 }
-
-/// ///
-
-async function getDynamicYouTubeSubtitles(videoID, targetLang = 'en'){
-    try {
-    const subtitles = await getYTSubtitles(videoID, targetLang);
-    // subtitles.forEach(sub => {
-    //   console.log(`${sub.start}s - ${parseFloat(sub.end)}s: ${sub.text}`);
-    // });
-    return subtitles;
-  } catch (e) {
-    console.error("Error ", e);
-  }
-};
 
 
 // My First Test & Example usage of getSubtitles
@@ -805,7 +946,7 @@ async function startTranslation(subtitles) {
       lastText = current.text;
       // Clean up subtitle text before translation by replaceing whitespace with single space
       // console.log(current.text.trim().replace(/\s+/g, ' '))
-      translateAndShow(current.text.trim().replace(/\s+/g, ' '));
+      translateAndShow(current.text.replace(/\s+/g, ' '));
     }
   }, 500);
 }
@@ -851,6 +992,7 @@ async function main() {
     if (!videoID) return console.warn("Youtube video IDdoes't exist");
 
     subtitles = await getYouTubeSubtitles(videoID, 'en',  window.location.pathname);
+
 
 
   } else if (hostname.includes('udemy.com')) {
